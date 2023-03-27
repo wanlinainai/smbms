@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
 
 /**
  * @author 梁志超
@@ -67,6 +68,21 @@ public class UserServiceImpl implements UserService {
             BaseDao.closeResource(connection, null, null);
         }
         return count;
+    }
+
+    @Override
+    public List<User> getUserList(String username, int userRole, int currentPageNo, int pageSize) {
+        Connection connection = null;
+        List<User> userList = null;
+        try {
+            connection = BaseDao.getConnection();
+            userList = userDao.getUserList(connection, username, userRole, currentPageNo, pageSize);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }finally {
+            BaseDao.closeResource(connection, null, null);
+        }
+        return userList;
     }
 
     @Test
