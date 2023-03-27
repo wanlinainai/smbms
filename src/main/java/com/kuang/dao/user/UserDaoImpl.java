@@ -1,10 +1,12 @@
 package com.kuang.dao.user;
 
 import com.kuang.dao.BaseDao;
+import com.kuang.pojo.Role;
 import com.kuang.pojo.User;
 import com.mysql.cj.util.StringUtils;
 import org.junit.jupiter.api.Test;
 
+import javax.management.relation.RoleList;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -73,7 +75,7 @@ public class UserDaoImpl implements UserDao {
         ResultSet rs = null;
         int count = 0;
         if (connection != null) {
-            sql.append("select count(*) as count from smbms.`smbms_user` u,smbms.`smbms_role` r where u.`userRole` = r.`id`");
+            sql.append("select count(1) as count from smbms.`smbms_user` u,smbms.`smbms_role` r where u.`userRole` = r.`id`");
             List<Object> lists = new ArrayList<>();
             //需要进行模糊查询
             if (!StringUtils.isNullOrEmpty(username)) {
@@ -142,7 +144,7 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Test
-    public void test(){
+    public void test() {
         Connection connection = BaseDao.getConnection();
         String username = null;
         int userRole = 0;
@@ -151,14 +153,14 @@ public class UserDaoImpl implements UserDao {
         try {
             List<User> userList = getUserList(connection, username, userRole, currentPageNo, pageSize);
             for (int i = 0; i < userList.size(); i++) {
-                System.out.print(userList.get(i).getId()+" ");
-                System.out.print(userList.get(i).getUserCode()+" ");
-                System.out.print(userList.get(i).getUserName()+" ");
-                System.out.print(userList.get(i).getGender()+" ");
-                System.out.print(userList.get(i).getBirthday()+" ");
-                System.out.print(userList.get(i).getPhone()+" ");
-                System.out.print(userList.get(i).getUserRole()+" ");
-                System.out.print(userList.get(i).getUserRoleName()+" ");
+                System.out.print(userList.get(i).getId() + " ");
+                System.out.print(userList.get(i).getUserCode() + " ");
+                System.out.print(userList.get(i).getUserName() + " ");
+                System.out.print(userList.get(i).getGender() + " ");
+                System.out.print(userList.get(i).getBirthday() + " ");
+                System.out.print(userList.get(i).getPhone() + " ");
+                System.out.print(userList.get(i).getUserRole() + " ");
+                System.out.print(userList.get(i).getUserRoleName() + " ");
                 System.out.println();
             }
         } catch (SQLException e) {

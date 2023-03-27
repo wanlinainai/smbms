@@ -1,7 +1,9 @@
 package com.kuang.dao.user;
 
+import com.kuang.pojo.Role;
 import com.kuang.pojo.User;
 
+import javax.management.relation.RoleList;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
@@ -23,4 +25,5 @@ public interface UserDao {
 
     //查询连表查询的用户列表
     public List<User> getUserList(Connection connection, String username, int userRole, int currentPageNo, int pageSize) throws SQLException;
+
 }
