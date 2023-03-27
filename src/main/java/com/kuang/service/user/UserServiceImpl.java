@@ -79,14 +79,132 @@ public class UserServiceImpl implements UserService {
             userList = userDao.getUserList(connection, username, userRole, currentPageNo, pageSize);
         } catch (SQLException e) {
             e.printStackTrace();
-        }finally {
+        } finally {
             BaseDao.closeResource(connection, null, null);
         }
         return userList;
     }
 
+    @Override
+    public boolean add(User user) {
+        boolean flag = false;
+        Connection connection = null;
+        try {
+            connection = BaseDao.getConnection();
+            //开启事务
+            connection.setAutoCommit(false);
+            int updateRows = userDao.add(connection, user);
+            connection.commit();
+            if (updateRows > 0) {
+                flag = true;
+                System.out.println("增加成功");
+            }else{
+                System.out.println("增加失败");
+            }
+        } catch (SQLException e) {
+            //回滚
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+            e.printStackTrace();
+        }finally {
+            //不要忘记关闭连接
+            BaseDao.closeResource(connection, null, null);
+        }
+        return flag;
+    }
+
+    @Override
+    public boolean deleteUserById(Integer id) {
+        boolean flag = false;
+        Connection connection = null;
+        try {
+            connection = BaseDao.getConnection();
+            connection.setAutoCommit(false);
+            int deleteUpdates = userDao.delete(connection, id);
+            //提交事务
+            connection.commit();
+            if (deleteUpdates > 0){
+                flag = true;
+                System.out.println("更新成功");
+            }else{
+                System.out.println("更新失败");
+            }
+        } catch (SQLException e) {
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+            e.printStackTrace();
+        }finally {
+            BaseDao.closeResource(connection, null, null);
+        }
+        return flag;
+    }
+
+    @Override
+    public boolean modify(User user) {
+        boolean flag = false;
+        Connection connection = null;
+        try {
+            connection = BaseDao.getConnection();
+            connection.setAutoCommit(false);
+            int modifyUpdates = userDao.modify(connection, user);
+            connection.commit();
+            if (modifyUpdates > 0) {
+                flag = true;
+                System.out.println("更新成功");
+            }else{
+                System.out.println("更新失败");
+            }
+        } catch (SQLException e) {
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+            e.printStackTrace();
+        }finally {
+            BaseDao.closeResource(connection,null, null);
+        }
+        return flag;
+    }
+
+    @Override
+    public User getUserById(Integer id) {
+        User user = null;
+        Connection connection = null;
+        try {
+            connection = BaseDao.getConnection();
+            user = userDao.getUserById(connection, id);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }finally {
+            BaseDao.closeResource(connection, null, null);
+        }
+        return user;
+    }
+
+    @Override
+    public User selectUserCodeExist(String userCode) {
+        Connection connection = null;
+        User user = null;
+        try{
+            connection = BaseDao.getConnection();
+            user = userDao.getLoginUser(connection, userCode, null);
+        }catch (Exception e){
+            e.printStackTrace();
+        }finally {
+            BaseDao.closeResource(connection, null, null);
+        }
+        return user;
+    }
+
     @Test
-    public void test(){
+    public void test() {
         UserServiceImpl userService = new UserServiceImpl();
         int userCount = userService.getUserCount(null, 1);
         System.out.println(userCount);

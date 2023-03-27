@@ -1,17 +1,17 @@
 package com.kuang.dao.user;
 
 import com.kuang.dao.BaseDao;
-import com.kuang.pojo.Role;
 import com.kuang.pojo.User;
 import com.mysql.cj.util.StringUtils;
+import com.mysql.cj.x.protobuf.MysqlxPrepare;
 import org.junit.jupiter.api.Test;
 
-import javax.management.relation.RoleList;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -143,30 +143,102 @@ public class UserDaoImpl implements UserDao {
         return userList;
     }
 
-    @Test
-    public void test() {
-        Connection connection = BaseDao.getConnection();
-        String username = null;
-        int userRole = 0;
-        int currentPageNo = 1;
-        int pageSize = 5;
-        try {
-            List<User> userList = getUserList(connection, username, userRole, currentPageNo, pageSize);
-            for (int i = 0; i < userList.size(); i++) {
-                System.out.print(userList.get(i).getId() + " ");
-                System.out.print(userList.get(i).getUserCode() + " ");
-                System.out.print(userList.get(i).getUserName() + " ");
-                System.out.print(userList.get(i).getGender() + " ");
-                System.out.print(userList.get(i).getBirthday() + " ");
-                System.out.print(userList.get(i).getPhone() + " ");
-                System.out.print(userList.get(i).getUserRole() + " ");
-                System.out.print(userList.get(i).getUserRoleName() + " ");
-                System.out.println();
+    @Override
+    public int add(Connection connection, User user) throws SQLException {
+        PreparedStatement pstm = null;
+        int result = 0;
+        if (connection != null) {
+            String sql = "insert into smbms.`smbms_user`(`userCode`,`userName`,`userPassword`,`gender`,`birthday`,`phone`,`address`,`userRole`,`creationDate`,`createdBy`)" +
+                    "values(?,?,?,?,?,?,?,?,?,?)";
+            Object[] params = {user.getUserCode(), user.getUserName(),user.getUserPassword(),user.getGender(),
+            user.getBirthday(),user.getPhone(),user.getAddress(), user.getUserRole(),user.getCreationDate(),user.getCreatedBy()};
+            result = BaseDao.execute(connection, params, sql, pstm);
+            BaseDao.closeResource(null, pstm, null);
+        }
+        return result;
+    }
+
+    @Override
+    public int delete(Connection connection, Integer id) throws SQLException {
+        int result = 0;
+        PreparedStatement pstm = null;
+        if (connection != null) {
+            String sql = "delete from `smbms_user` where id=?";
+            Object[] params = {id};
+            result = BaseDao.execute(connection, params, sql, pstm);
+            BaseDao.closeResource(null, pstm, null);
+        }
+        return result;
+    }
+
+    @Override
+    public User getUserById(Connection connection, Integer id) throws SQLException {
+        User user = null;
+        ResultSet rs = null;
+        PreparedStatement pstm = null;
+        if (connection != null) {
+            //连表查询
+            String sql = "select u.*,r.roleName from smbms.`smbms_user` u,smbms.`smbms_role` r where u.userRole=r.id and u.id=?";
+            Object[] params = {id};
+            rs = BaseDao.execute(connection, params, sql, pstm, rs);
+            while(rs.next()) {
+                user.setId(rs.getInt("id"));
+                user.setUserPassword(rs.getString("userPassword"));
+                user.setAddress(rs.getString("address"));
+                user.setUserCode(rs.getString("userCode"));
+                user.setUserName(rs.getString("useName"));
+                user.setGender(rs.getInt("gender"));
+                user.setBirthday(rs.getDate("birthday"));
+                user.setPhone(rs.getString("phone"));
+                user.setUserRole(rs.getInt("userRole"));
+                user.setCreationDate(rs.getDate("creationDate"));
+                user.setCreatedBy(rs.getInt("createdBy"));
+                user.setModifyBy(rs.getInt("modifyBy"));
+                user.setModifyDate(rs.getTimestamp("modifyDate"));
             }
+            BaseDao.closeResource(null, pstm, rs);
+        }
+        return user;
+    }
+
+    @Override
+    public int modify(Connection connection, User user) throws SQLException {
+        int result = 0;
+        PreparedStatement pstm = null;
+        String sql = "update smbms.`smbms_user` set `userName`=?,`gender`=?,`birthday`=?," +
+                "`phone`=?,`address`=?,`userRole`=?,modifyBy=?,modifyDate=? where id=?";
+        Object[] params = {user.getUserName(),user.getGender(), user.getBirthday(), user.getPhone(),
+        user.getAddress(),user.getUserRole(), user.getModifyBy(),user.getModifyDate(), user.getId()};
+        result = BaseDao.execute(connection, params, sql, pstm);
+        BaseDao.closeResource(null, pstm, null);
+        return  result;
+    }
+
+    @Test
+    public void test(){
+        UserDaoImpl userDao = new UserDaoImpl();
+        Connection connection = BaseDao.getConnection();
+        User user = new User();
+        Date date = new Date();
+        user.setUserCode("Liangzhichao");
+        user.setUserName("梁志超");
+        user.setUserPassword("1234567");
+        user.setGender(1);
+        user.setBirthday(date);
+        user.setPhone("15144589652");
+        user.setAddress("北京市海淀区");
+        user.setUserRole(1);
+        user.setCreatedBy(3);
+        user.setCreationDate(date);
+        user.setModifyBy(3);
+        user.setModifyDate(date);
+        try {
+            userDao.add(connection, user);
+            //int result = userDao.delete(connection, 12);
+//            System.out.println(result);
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
     }
 
 }

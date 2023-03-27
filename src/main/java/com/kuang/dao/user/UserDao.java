@@ -4,6 +4,7 @@ import com.kuang.pojo.Role;
 import com.kuang.pojo.User;
 
 import javax.management.relation.RoleList;
+import java.net.ConnectException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
@@ -25,5 +26,11 @@ public interface UserDao {
 
     //查询连表查询的用户列表
     public List<User> getUserList(Connection connection, String username, int userRole, int currentPageNo, int pageSize) throws SQLException;
+
+    //增删改查
+    public int add(Connection connection, User user) throws SQLException;
+    public int delete(Connection connection, Integer id) throws SQLException;
+    public User getUserById(Connection connection, Integer id) throws SQLException;
+    public int modify(Connection connection, User user) throws SQLException;
 
 }

@@ -21,4 +21,14 @@ public interface UserService {
 
     //根据条件查询用户列表
     public List<User> getUserList(String username, int userRole, int currentPageNo, int pageSize);
+
+    //增删改
+    public boolean add(User user);
+    public boolean deleteUserById(Integer id);
+    public boolean modify(User user);
+
+    //根据ID得到当期那用户的信息
+    public User getUserById(Integer id);
+
+    public User selectUserCodeExist(String userCode);
 }

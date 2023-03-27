@@ -15,7 +15,7 @@
 					 
 					 <span>用户角色：</span>
 					 <select name="queryUserRole">
-						<c:if test="${roleList != null }">
+						<c:if test="${roleList != null}">
 						   <option value="0">--请选择--</option>
 						   <c:forEach var="role" items="${roleList}">
 						   		<option <c:if test="${role.id == queryUserRole }">selected="selected"</c:if>
@@ -43,6 +43,7 @@
                    <c:forEach var="user" items="${userList }" varStatus="status">
 					<tr>
 						<td>
+							<!-- 直接将userList列表全部赋值给上面的items，取名字为user ，通过user来调用userLIst中的属性字段 -->
 						<span>${user.userCode }</span>
 						</td>
 						<td>

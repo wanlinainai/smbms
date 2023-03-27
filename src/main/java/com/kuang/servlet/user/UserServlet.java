@@ -16,6 +16,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +38,8 @@ public class UserServlet extends HttpServlet {
             this.pwdModify(req, resp);
         } else if (method.equals("query") && method != null) {
             this.query(req, resp);
+        } else if (method.equals("add") && method != null) {//增加方法
+            this.add(req, resp);
         }
     }
 
@@ -151,7 +155,7 @@ public class UserServlet extends HttpServlet {
         if (temp != null && !temp.equals("")) {
             queryUserRole = Integer.parseInt(temp);
         }
-        if (pageIndex != null){
+        if (pageIndex != null) {
             currentPageNo = Integer.parseInt(pageIndex);
         }
         //获取用户的总数
@@ -165,31 +169,68 @@ public class UserServlet extends HttpServlet {
         int totalPageCount = pageSupport.getTotalPageCount();
 
         //控制首页和尾页
-        if (currentPageNo < 1){
+        if (currentPageNo < 1) {
             currentPageNo = 1;
-        }else if (currentPageNo > totalPageCount) {
+        } else if (currentPageNo > totalPageCount) {
             currentPageNo = totalPageCount;
         }
 
         //获取用户列表，角色列表
         userList = userService.getUserList(queryUserName, queryUserRole, currentPageNo, pageSize);
-        req.setAttribute("userList",userList);
+        req.setAttribute("userList", userList);
         RoleServiceImpl roleService = new RoleServiceImpl();
         roleList = roleService.getRoleList();
-        req.setAttribute("roleList",roleList);
-        req.setAttribute("queryUsername",queryUserName);
-        req.setAttribute("queryUserRole",queryUserRole);
-        req.setAttribute("totalPageCount",totalPageCount);
-        req.setAttribute("totalCount",totalCount);
-        req.setAttribute("currentPageNo",currentPageNo);
+        req.setAttribute("roleList", roleList);
+        req.setAttribute("queryUsername", queryUserName);
+        req.setAttribute("queryUserRole", queryUserRole);
+        req.setAttribute("totalPageCount", totalPageCount);
+        req.setAttribute("totalCount", totalCount);
+        req.setAttribute("currentPageNo", currentPageNo);
 
         //返回前端
         try {
-            req.getRequestDispatcher("userlist.jsp").forward(req,resp);
+            req.getRequestDispatcher("userlist.jsp").forward(req, resp);
         } catch (ServletException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    //增加方法
+    public void add(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        System.out.println("用户正在执行增加add操作");
+        String userCode = req.getParameter("userCode");
+        String userName = req.getParameter("userName");
+        String userPassword = req.getParameter("userPassword");
+        String gender = req.getParameter("gender");
+        String birthday = req.getParameter("birthday");
+        String phone = req.getParameter("phone");
+        String address = req.getParameter("address");
+        String userRole = req.getParameter("userRole");
+
+        User user = new User();
+        user.setUserCode(userCode);
+        user.setUserPassword(userPassword);
+        user.setUserName(userName);
+        user.setGender(Integer.valueOf(gender));
+        try {
+            user.setBirthday(new SimpleDateFormat("yyyy-MM-dd").parse(birthday));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        user.setPhone(phone);
+        user.setAddress(address);
+        user.setUserRole(Integer.valueOf(userRole));
+        //增加成功或者失败
+        UserServiceImpl userService = new UserServiceImpl();
+        boolean flag = userService.add(user);
+        if (flag) {
+            //成功重定向到/jsp/user.do?method=query
+            resp.sendRedirect(req.getContextPath() + "/jsp/user.do?method=query");
+        } else {
+            //失败重新跳转到当前页面
+            req.getRequestDispatcher("useradd.jsp").forward(req, resp);
         }
     }
 }
