@@ -4,6 +4,7 @@ import com.kuang.pojo.User;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
 
 /**
  * @author 梁志超
@@ -19,4 +20,7 @@ public interface UserDao {
 
     //查询用户数量
     public int getCount(Connection connection, String username, int userRole) throws SQLException;
+
+    //查询连表查询的用户列表
+    public List<User> getUserList(Connection connection, String username, int userRole, int currentPageNo, int pageSize) throws SQLException;
 }

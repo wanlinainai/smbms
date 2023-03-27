@@ -13,4 +13,7 @@ public interface UserService {
 
     //修改用户数据,观察是否修改成功就行了，返回值是boolean就够了
     public boolean updatePwd(int id, String pwd);
+
+    //查询记录数
+    public int getUserCount(String username, int userRole);
 }

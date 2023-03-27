@@ -10,6 +10,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -77,8 +78,8 @@ public class UserDaoImpl implements UserDao {
             List<Object> lists = new ArrayList<>();
             //需要进行模糊查询
             if (!StringUtils.isNullOrEmpty(username)) {
-                sql.append("and u.userName like ?");
-                lists.add("%" + username+ "%");
+                sql.append(" and u.userName like ?");
+                lists.add("%" + username + "%");
             }
             if (userRole > 0) {
                 sql.append(" and u.userRole=?");
@@ -96,18 +97,75 @@ public class UserDaoImpl implements UserDao {
         return count;
     }
 
+    @Override
+    public List<User> getUserList(Connection connection, String username, int userRole, int currentPageNo, int pageSize) throws SQLException {
+        List<User> userList = new ArrayList<>();
+        connection = BaseDao.getConnection();
+        PreparedStatement pstm = null;
+        ResultSet rs = null;
+        if (connection != null) {
+            StringBuffer sql = new StringBuffer();
+            sql.append("select u.*,r.roleName as userRoleName from smbms_user u, smbms_role r where u.userRole = r.id");
+            //用户可以输入一些关键字，进行模糊查询
+            List<Object> list = new ArrayList<>();
+            if (!StringUtils.isNullOrEmpty(username)) {
+                sql.append(" and u.userName like ?");
+                list.add("%" + username + "%");
+            }
+            if (userRole > 0) {
+                sql.append(" and u.userRole = ?");
+                list.add(userRole);
+            }
+            //进行分页查询
+            sql.append(" order by u.creationDate desc limit ?,?");
+            currentPageNo = (currentPageNo - 1) * pageSize;
+            list.add(currentPageNo);
+            list.add(pageSize);
+
+            Object[] params = list.toArray();
+            System.out.println(sql);
+            rs = BaseDao.execute(connection, params, sql.toString(), pstm, rs);
+            while (rs.next()) {
+                User user = new User();
+                user.setId(rs.getInt("id"));
+                user.setUserCode(rs.getString("userCode"));
+                user.setUserName(rs.getString("userName"));
+                user.setGender(rs.getInt("gender"));
+                user.setBirthday(rs.getDate("birthday"));
+                user.setPhone(rs.getString("phone"));
+                user.setUserRole(rs.getInt("userRole"));
+                user.setUserRoleName(rs.getString("userRoleName"));
+                userList.add(user);
+            }
+            BaseDao.closeResource(null, pstm, rs);
+        }
+        return userList;
+    }
+
     @Test
     public void test(){
         Connection connection = BaseDao.getConnection();
-        String username = "张";
+        String username = null;
         int userRole = 0;
-
+        int currentPageNo = 1;
+        int pageSize = 5;
         try {
-            int count = getCount(connection, username, userRole);
-            System.out.println(count);
-
+            List<User> userList = getUserList(connection, username, userRole, currentPageNo, pageSize);
+            for (int i = 0; i < userList.size(); i++) {
+                System.out.print(userList.get(i).getId()+" ");
+                System.out.print(userList.get(i).getUserCode()+" ");
+                System.out.print(userList.get(i).getUserName()+" ");
+                System.out.print(userList.get(i).getGender()+" ");
+                System.out.print(userList.get(i).getBirthday()+" ");
+                System.out.print(userList.get(i).getPhone()+" ");
+                System.out.print(userList.get(i).getUserRole()+" ");
+                System.out.print(userList.get(i).getUserRoleName()+" ");
+                System.out.println();
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
     }
+
 }

@@ -143,4 +143,5 @@ public class User {
     public void setModifyDate(Date modifyDate) {
         this.modifyDate = modifyDate;
     }
+
 }
