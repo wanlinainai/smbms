@@ -40,6 +40,8 @@ public class UserServlet extends HttpServlet {
             this.query(req, resp);
         } else if (method.equals("add") && method != null) {//增加方法
             this.add(req, resp);
+        }else if (method.equals("")){
+            //没有更新必要了，东西都不全
         }
     }
 
@@ -198,6 +200,7 @@ public class UserServlet extends HttpServlet {
     }
 
     //增加方法
+
     public void add(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         System.out.println("用户正在执行增加add操作");
         String userCode = req.getParameter("userCode");
@@ -233,4 +236,14 @@ public class UserServlet extends HttpServlet {
             req.getRequestDispatcher("useradd.jsp").forward(req, resp);
         }
     }
+
+    //查询某个用户的信息
+    public void getUserById(HttpServletRequest req, HttpServletResponse resp){
+
+    }
+    //删
+    public void delete(HttpServletRequest req, HttpServletResponse resp) {
+
+    }
+
 }
